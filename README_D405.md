@@ -26,12 +26,44 @@ python run_handpose3d_d405.py --plot3d --save takes/take001   # ライブ計測+
 # 終了: GUIで q、またはターミナルで Ctrl+C(1回押して [save] 表示を待つ)
 ```
 
-主なオプション: `--no-ir`(IRステレオ記録なし) / `--no-video`(生映像なし) /
-`--record out.mp4`(オーバーレイ動画) / `--reset`(カメラ復旧) /
-`--min-det-conf 0.3`(検出しきい値) / `--session DIR`(オフライン1フレーム) /
-`--export-dat DIR`(元リポジトリ形式の校正出力)
+### コマンド集
 
-USB2 で誤認識された場合は起動時に自動で hardware_reset して USB3 復帰を試みる。
+```bash
+# 表示だけ(保存なし)
+python run_handpose3d_d405.py --plot3d
+
+# 検出が渋いとき(しきい値を下げる)
+python run_handpose3d_d405.py --plot3d --save takes/takeXXX --min-det-conf 0.3
+
+# カメラがハングしたとき(Frame didn't arrive)
+python run_handpose3d_d405.py --reset --plot3d --save takes/takeXXX
+
+# 容量節約(IRなし / 生映像なし)
+python run_handpose3d_d405.py --save takes/light1 --no-ir
+python run_handpose3d_d405.py --save takes/light2 --no-video
+
+# オーバーレイ動画の録画 / オフライン1フレーム / 元リポジトリ形式の校正出力
+python run_handpose3d_d405.py --record out.mp4
+python run_handpose3d_d405.py --session <capture_dir>
+python run_handpose3d_d405.py --export-dat camera_parameters_d405
+```
+
+### 録画後の確認
+
+```bash
+# 3D軌跡の再生(元リポジトリのビューア、パス引数対応済み)
+python show_3d_hands.py takes/take001/kpts_3d.dat
+
+# 保存内容のクイックチェック
+python -c "import numpy as np; t=np.load('takes/take001/take.npz'); \
+print('frames:', len(t['t_wall']), ' 3D率:', (t['n_views']>=2).mean().round(2), \
+' 右手率:', (t['handed'][t['handed']>=0]==1).mean().round(2))"
+```
+
+### 計測のコツ・復旧
+
+- 手は **cam0 の前方 25〜40cm** のゾーンで、タイル表示の2つ以上が緑(HAND)になる位置で動かす
+- USB2 で誤認識された場合は起動時に自動で hardware_reset して USB3 復帰を試みる(ダメならケーブル挿し直し)
 
 ## 校正(calib/)
 

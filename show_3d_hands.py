@@ -86,5 +86,6 @@ def visualize_3d(p3ds):
 
 if __name__ == '__main__':
 
-    p3ds = read_keypoints('kpts_3d.dat')
+    import sys
+    p3ds = read_keypoints(sys.argv[1] if len(sys.argv) > 1 else 'kpts_3d.dat')
     visualize_3d(p3ds)
