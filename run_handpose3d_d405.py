@@ -137,7 +137,10 @@ def detect_hands_2d(hands, frame_bgr):
     """Run MediaPipe on one BGR frame.
 
     Returns ((21,2) float pixels or None, landmarks, (handed_int, score)):
-    handed_int: -1 no hand, 0 Left, 1 Right (MediaPipe label, non-mirrored image).
+    handed_int: -1 no hand, 0 Left, 1 Right — ACTUAL handedness. MediaPipe labels
+    assume a mirrored (selfie) image; our frames are not mirrored, so the label
+    is swapped here. Chirality check: right hand => thumb MCP (kpt 2) has y < 0
+    in the palm_frame() coordinates.
     """
     rgb = cv.cvtColor(frame_bgr, cv.COLOR_BGR2RGB)
     rgb.flags.writeable = False
@@ -146,7 +149,7 @@ def detect_hands_2d(hands, frame_bgr):
         return None, None, (-1, 0.0)
     lm = res.multi_hand_landmarks[0]
     cls = res.multi_handedness[0].classification[0]
-    handed = (1 if cls.label == 'Right' else 0, float(cls.score))
+    handed = (1 if cls.label == 'Left' else 0, float(cls.score))
     h, w = frame_bgr.shape[:2]
     pts = np.array([(p.x * w, p.y * h) for p in lm.landmark], dtype=np.float64)
     return pts, lm, handed

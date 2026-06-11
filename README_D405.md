@@ -60,6 +60,8 @@ USB2 で誤認識された場合は起動時に自動で hardware_reset して U
 - [Bidex_VisionPro_Teleop](https://github.com/leap-hand/Bidex_VisionPro_Teleop) 方式(PyBullet IK):
   掌座標系での各指 PIP+指先(MediaPipe idx: 親指3,4 / 人差指6,8 / 中指10,12 / 薬指14,16 / 小指18,20)をターゲットに、人→LEAPスケール約1.35–1.5倍
 - `handed` を確認のこと(LEAP は右手。左手テイクはミラーリング必要)
+- `handed` は**実際の左右**(MediaPipe の生ラベルは自撮りミラー前提のため、非反転入力では逆になる — スクリプト内で補正済み)
+- 幾何チェック: 掌座標系で親指MCP(kpt2)の y < 0 なら右手(take002 で全フレーム一貫を確認済み)
 
 ## 深度補正(Fast-FoundationStereo)
 
